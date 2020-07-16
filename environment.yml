@@ -1,0 +1,8 @@
+name: lfpf-env
+channels:
+  - conda-forge
+dependencies:
+  - numpy
+  - matplotlib
+  - ipywidgets
+  - pillow
