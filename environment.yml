@@ -3,6 +3,7 @@ channels:
   - conda-forge
 dependencies:
   - numpy
+  - cupy
   - matplotlib
   - ipywidgets
   - ipympl
