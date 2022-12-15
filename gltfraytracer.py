@@ -304,7 +304,8 @@ class Scene3D:
 
         ggx_v = LdotN * np.sqrt(np.square(VdotN) * (1.0 - alpha_sq) + alpha_sq)
         ggx_l = VdotN * np.sqrt(np.square(LdotN) * (1.0 - alpha_sq) + alpha_sq)
-        visibility = np.nan_to_num(0.5 / (ggx_v + ggx_l))
+        ggx = ggx_v + ggx_l
+        visibility = np.nan_to_num(0.5 / np.maximum(ggx, np.finfo(ggx.dtype).eps))
 
         dielectric_fresnel = 0.04 + (1.0 - 0.04) * np.power(1.0 - VdotH, 5)
         metal_fresnel = base_color + (1.0 - base_color) * np.power(1.0 - VdotH, 5)
