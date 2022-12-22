@@ -293,7 +293,7 @@ class Scene3D:
         alpha_sq = np.power(roughness, 4)
 
         halfway_vector = view_vector + light_vector
-        halfway_vector /= np.sqrt(np.einsum('...i,...i', halfway_vector, halfway_vector))[:, np.newaxis]
+        halfway_vector /= np.sqrt(dot(halfway_vector, halfway_vector))[:, np.newaxis]
 
         NdotH = np.clip(dot(normal_vector, halfway_vector), 0.0, 1.0)[:, np.newaxis]
         VdotH = np.clip(dot(view_vector, halfway_vector), 0.0, 1.0)[:, np.newaxis]
