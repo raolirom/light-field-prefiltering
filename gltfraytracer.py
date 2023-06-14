@@ -188,6 +188,9 @@ class Scene3D:
         path = os.path.dirname(filename)
         gltf = GLTF2().load(filename)
 
+        min_coord = np.ones(3) * np.nan
+        max_coord = np.ones(3) * np.nan
+
         self.materials = []
         for gltf_material in gltf.materials:
             material = Material3D(path, gltf, gltf_material)
@@ -198,6 +201,9 @@ class Scene3D:
             for primitive in gltf_mesh.primitives:
                 mesh = Mesh3D(gltf, primitive, rotation, translation)
                 self.meshes.append(mesh)
+
+                np.fmin(min_coord, np.nanmin(mesh.position, axis=0), out=min_coord)
+                np.fmax(max_coord, np.nanmax(mesh.position, axis=0), out=max_coord)
 
                 geometry = self.device.make_geometry(embree.GeometryType.Triangle)
 
@@ -211,9 +217,13 @@ class Scene3D:
                 self.scene.attach_geometry(geometry)
                 geometry.release()
 
+        print('Scene AABB:')
+        print(min_coord)
+        print(max_coord)
+
         self.scene.commit()
 
-    def rayCast(self, ray_origins, ray_directions, light_values, light_directions):
+    def rayCast(self, ray_origins, ray_directions, light_values, light_directions, debug=False):
         n_rays = ray_origins.shape[0]
 
         ray_color = np.zeros((n_rays, 3), dtype=np.float32)
@@ -283,6 +293,9 @@ class Scene3D:
                     
                     # Accumulate for each light.
                     ray_color[mask] +=  self.brdf_shading(view_vector, light_vector, normal_vector, metallic, roughness, base_color) * light_values[light_id]
+
+                if debug:
+                    ray_color[mask] = np.abs(normal_vector)
 
                 # Deactivate shaded rays.
                 active_rays[mask] = False
